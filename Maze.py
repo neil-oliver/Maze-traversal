@@ -115,7 +115,7 @@ def createPrevious(graph):
     return (q)
 
 
-def dykstra(graph, q):
+def dijkstra(graph, q):
 
     current = ("", 0)
     visited = []
@@ -167,8 +167,8 @@ def searchGraph(previous, visited, end):
     print("Shortest path to " + end + ": " + str(pathLen[end]))
     print("Nodes of shortest path from " + start + " to " + end + ": " + str(shortest))
 
-#run dykstra
-previous, visited = dykstra(graph, createQueue(graph, start))
+#run dijkstra
+previous, visited = dijkstra(graph, createQueue(graph, start))
 
 # search graph with given start and end point
 searchGraph(previous, visited, end)
