@@ -100,17 +100,24 @@ def createQueue(graph, start):
     q[start] = 0
     return(q)
 
+def createPrevious(graph, start):
+    q = {}
+    for x in graph:
+        q[x] = ""
+
+    return(q)
 
 def searchGraph(graph, q, end):
 
     current = ("",0)
     visited = []
-
+    previous = createPrevious(graph, "A")
+    
     while graph:
         #sort the queue by value
-        sorted_x = sorted(q.items(), key=operator.itemgetter(1))
-        current = sorted_x.pop(0)
-        q = dict(sorted_x)
+        sorted_q = sorted(q.items(), key=operator.itemgetter(1))
+        current = sorted_q.pop(0)
+        q = dict(sorted_q)
 
         nodes = graph[current[0]]
 
@@ -119,19 +126,28 @@ def searchGraph(graph, q, end):
             for x in node:
                 newDistance = node[x] + current[1]
                 if newDistance < q[x]:
+                    previous[x] = current[0]
                     q[x] = newDistance
-                    sorted_x = sorted(q.items(), key=operator.itemgetter(1))
-                    q = dict(sorted_x)
+                    sorted_q = sorted(q.items(), key=operator.itemgetter(1))
+                    q = dict(sorted_q)
 
         visited.append(current)
 
         if current[0] == end:
             break
+
     print("Total nodes: " + str(len(graph)))
     print("Current nodes checked: " + str(len(visited)))
-    print("Shortest path to end: " + str(visited[-1][1]))
-    print("Nodes visited:")
-    print(visited)
+    print("Shortest path to " + end + ": " + str(visited[-1][1]))
 
+    trace = end
+    shortest = []
+    while trace != "":
+        shortest.insert(0,previous[trace])
+        trace = previous[trace]
+    del shortest[0]
+        
+    print("Nodes of shortest path to " + end + ": " + str(shortest))
+    
 #search graph with given start and end point
 searchGraph(graph, createQueue(graph, "A"), 'BO')
