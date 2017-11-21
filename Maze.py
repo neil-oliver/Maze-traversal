@@ -7,7 +7,7 @@ start = "A15"
 end = "B17" #default P1
 
 #print verbose
-v = False
+v = True
 
 #option to guess or not
 takeGuess = True
@@ -114,7 +114,9 @@ def createQueue(graph, start):
     q[start] = 0
 
     if v:
-        print("Queue Created\n")
+        print("Queue Created with starting node " + start)
+        print(str(q) + "\n")
+
     return (q)
 
 
@@ -151,7 +153,8 @@ def dijkstra(graph, q):
         #keep track of all the visited notes in order of smallest to largest
         visited.append(current)
     if v:
-        print("\nTotal nodes searched via Dijkstra: " + str(len(graph)))
+        print("\nTotal number of distances calculated via Dijkstra: " + str(len(graph)))
+        print("The shorttest Distances for each node are: \n" + str(visited))
 
     return visited
 
@@ -194,22 +197,23 @@ def bestGuess(node1, node2):
 
     guessPath = []
 
-    def guess(guessNode):
+    def guess(guessNode, lowestDist):
         #heuristic approach to picking the next node based on straight line distance to the end node.
-        best = ""
-        lowestDist = float("inf")
 
         if v:
             if guessNode != node2:
                 print("Best guess neighbour options: " + str(guessNode) + " : " + str(graph[guessNode]))
                 if graph[guessNode]:
-                    print("Checking each neighbour to calculate closest distance. \n")
+                    print("Checking each neighbour to calculate closest distance...")
                 else:
-                    print("We have reached a dead end and failed to find the end node.\n")
+                    print("The node has no neighbouring nodes and we have failed to find the end node.\n")
+                    print("We finished " + str(round(lowestDist,1)) + " squares away from " + end + ".\n")
 
             else:
                 print(str(guessNode) + " : " + "END NODE \n")
 
+        best = ""
+        lowestDist = float("inf")
 
         for node in graph[guessNode]:
             for n in node:
@@ -246,10 +250,10 @@ def bestGuess(node1, node2):
             guessPath.append(best)
 
             #reall the guessPath using the new node
-            guess(best)
+            guess(best,lowestDist)
     if v:
         print("\nCalling best guess algorithm... \n")
-    guess(node1)
+    guess(node1, float("inf"))
 
     #print this line regardless of verbose flag
     print("Path of best guess: " + str(guessPath))
