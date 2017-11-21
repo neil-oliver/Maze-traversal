@@ -7,7 +7,10 @@ start = "A15"
 end = "B17" #default P1
 
 #print verbose
-v = True
+v = False
+
+#option to guess or not
+takeGuess = True
 
 #graph representation of https://i.redd.it/qzmfijn9kewz.gif
 graph = {
@@ -102,18 +105,22 @@ graph = {
     "D1": []
 }
 
-#create unvisitied queue
+#create unvisited queue
 def createQueue(graph, start):
     q = {}
     for x in graph:
         q[x] = float("inf")
 
     q[start] = 0
+
+    if v:
+        print("Queue Created\n")
     return (q)
 
 
 def dijkstra(graph, q):
-
+    if v:
+        print("Running Dijkstra...\n")
     current = ("", 0)
     visited = []
 
@@ -136,32 +143,49 @@ def dijkstra(graph, q):
                 newDistance = node[x] + current[1]
                 if newDistance < q[x]:
                     q[x] = newDistance
+                    if v:
+                        print("Updating " + str(x) + " to the shortest distance value " + str(newDistance))
                     sorted_q = sorted(q.items(), key=operator.itemgetter(1))
                     q = dict(sorted_q)
 
         #keep track of all the visited notes in order of smallest to largest
         visited.append(current)
+    if v:
+        print("\nTotal nodes searched via Dijkstra: " + str(len(graph)))
 
-    print("Total nodes: " + str(len(graph)))
     return visited
 
 def searchGraph(visited, end):
     #find the shortest path from A to B
+    if v:
+        print("\nSearching graph for shortest path between " + start + " and " + end + "...\n")
+
     shortest = []
     def search(trace):
+        if v:
+            if trace != end and trace != start:
+                print("The next closest node is " + trace)
+            elif trace == start:
+                print("Finishing on the starting node of " + start)
+
         for x in visited:
             for node in graph[x[0]]:
                 for n in node:
                     if n == trace:
                         shortest.insert(0, trace)
                         search(x[0])
+    if v:
+        print("Starting with node " + end + "...")
 
     search(end)
 
     #convert the list of tuples to a dictionary to enable an easy search
     pathLen = dict(visited)
 
-    print("Shortest path to " + end + ": " + str(pathLen[end]))
+    if v:
+        print("\nShortest path to " + end + ": " + str(pathLen[end]))
+
+    #print this line regardless of verbose flag
     print("Nodes of shortest path from " + start + " to " + end + ": " + str(shortest))
 
     return shortest
@@ -178,7 +202,11 @@ def bestGuess(node1, node2):
         if v:
             if guessNode != node2:
                 print("Best guess neighbour options: " + str(guessNode) + " : " + str(graph[guessNode]))
-                print("Checking each neighbour to calculate closest distance. \n")
+                if graph[guessNode]:
+                    print("Checking each neighbour to calculate closest distance. \n")
+                else:
+                    print("We have reached a dead end and failed to find the end node.\n")
+
             else:
                 print(str(guessNode) + " : " + "END NODE \n")
 
@@ -214,12 +242,16 @@ def bestGuess(node1, node2):
             if v:
                 print("best guess: " + best + "\n")
                 print("")
+            #append the guessed node to the guessPath list
             guessPath.append(best)
+
+            #reall the guessPath using the new node
             guess(best)
     if v:
         print("\nCalling best guess algorithm... \n")
     guess(node1)
 
+    #print this line regardless of verbose flag
     print("Path of best guess: " + str(guessPath))
 
     return guessPath
@@ -230,12 +262,13 @@ visited = dijkstra(graph, createQueue(graph, start))
 # search graph with given start and end point
 shortestPath = searchGraph(visited, end)
 
-# testing the straight line distance
-guessPath = bestGuess(start, end)
+if takeGuess == True:
+    # testing the straight line distance
+    guessPath = bestGuess(start, end)
 
-#print a small message in verbose mode to suggest a different end point if the guess algorithm was 100% accurate
-if v:
-    if shortestPath == guessPath:
-        print("\nThe guess algorithm was spot on! \nWhy don\'t you try changing the end point to Q7 or B17 to see it fail!")
-    else:
-        print("\nThe guess algorithm didn't get it quite right.")
+    #print a small message in verbose mode to suggest a different end point if the guess algorithm was 100% accurate
+    if v:
+        if shortestPath == guessPath:
+            print("\nThe guess algorithm was spot on! \nWhy don\'t you try changing the end point to Q7 or B17 to see it fail!")
+        else:
+            print("\nThe guess algorithm didn't get it quite right. Why not try changing the end point to P1 to see it guess correctly!")
