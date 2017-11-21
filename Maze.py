@@ -4,7 +4,7 @@ from math import sqrt
 
 #start and end variables
 start = "A15"
-end = "B17" #default P1
+end = "O3" #default P1
 
 #print verbose
 v = True
@@ -260,19 +260,23 @@ def bestGuess(node1, node2):
 
     return guessPath
 
-#run dijkstra
-visited = dijkstra(graph, createQueue(graph, start))
+#check that the start and end nodes exist in the graph before continuing
+if start in graph and end in graph:
+    #run dijkstra
+    visited = dijkstra(graph, createQueue(graph, start))
 
-# search graph with given start and end point
-shortestPath = searchGraph(visited, end)
+    # search graph with given start and end point
+    shortestPath = searchGraph(visited, end)
 
-if takeGuess == True:
-    # testing the straight line distance
-    guessPath = bestGuess(start, end)
+    if takeGuess == True:
+        # testing the straight line distance
+        guessPath = bestGuess(start, end)
 
-    #print a small message in verbose mode to suggest a different end point if the guess algorithm was 100% accurate
-    if v:
-        if shortestPath == guessPath:
-            print("\nThe guess algorithm was spot on! \nWhy don\'t you try changing the end point to Q7 or B17 to see it fail!")
-        else:
-            print("\nThe guess algorithm didn't get it quite right. Why not try changing the end point to P1 to see it guess correctly!")
+        #print a small message in verbose mode to suggest a different end point if the guess algorithm was 100% accurate
+        if v:
+            if shortestPath == guessPath:
+                print("\nThe guess algorithm was spot on! \nWhy don\'t you try changing the end point to Q7, B17 or L14 to see it fail!")
+            else:
+                print("\nThe guess algorithm didn't get it quite right. Why not try changing the end point to P1 to see it guess correctly!")
+else:
+    print("Please check your start and end nodes at the top of code ensuring they are in the graph and have been given in CAPITALS. Thank you.")
