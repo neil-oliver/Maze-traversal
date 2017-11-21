@@ -108,20 +108,11 @@ def createQueue(graph, start):
     q[start] = 0
     return (q)
 
-#create list to store previous node
-def createPrevious(graph):
-    q = {}
-    for x in graph:
-        q[x] = ""
-
-    return (q)
-
 
 def dijkstra(graph, q):
 
     current = ("", 0)
     visited = []
-    previous = createPrevious(graph)
 
     while q:
         # sort the queue by value by creating a list of tuples
@@ -141,36 +132,38 @@ def dijkstra(graph, q):
             for x in node:
                 newDistance = node[x] + current[1]
                 if newDistance < q[x]:
-                    previous[x] = current[0]
                     q[x] = newDistance
                     sorted_q = sorted(q.items(), key=operator.itemgetter(1))
                     q = dict(sorted_q)
 
                     #testing the straight line distance
-                    distance(x, end)
+                    #distance(x, end)
 
-        #keep track of all the visited notes. Not essential but nice for being able to print stats
+        #keep track of all the visited notes in order of smallest to largest
         visited.append(current)
 
     print("Total nodes: " + str(len(graph)))
-    return previous, visited
+    return visited
 
-
-def searchGraph(previous, visited, end):
+def searchGraph(visited, end):
     #find the shortest path from A to B
-    trace = end
     shortest = []
-    while trace != "":
-        shortest.insert(0, previous[trace])
-        trace = previous[trace]
-    #for some reason the while loop includes the last blank entry "" so we delete it
-    del shortest[0]
+    def search(trace):
+        for x in visited:
+            for node in graph[x[0]]:
+                for n in node:
+                    if n == trace:
+                        shortest.insert(0, trace)
+                        search(x[0])
+
+    search(end)
 
     #convert the list of tuples to a dictionary to enable an easy search
     pathLen = dict(visited)
 
     print("Shortest path to " + end + ": " + str(pathLen[end]))
     print("Nodes of shortest path from " + start + " to " + end + ": " + str(shortest))
+
 
 def distance(node1, node2):
 
@@ -193,7 +186,7 @@ def distance(node1, node2):
     return dist
 
 #run dijkstra
-previous, visited = dijkstra(graph, createQueue(graph, start))
+visited = dijkstra(graph, createQueue(graph, start))
 
 # search graph with given start and end point
-searchGraph(previous, visited, end)
+searchGraph(visited, end)
