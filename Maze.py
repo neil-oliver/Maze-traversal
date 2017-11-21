@@ -4,7 +4,10 @@ from math import sqrt
 
 #start and end variables
 start = "A15"
-end = "P1"
+end = "B17" #default P1
+
+#print verbose
+v = True
 
 #graph representation of https://i.redd.it/qzmfijn9kewz.gif
 graph = {
@@ -136,9 +139,6 @@ def dijkstra(graph, q):
                     sorted_q = sorted(q.items(), key=operator.itemgetter(1))
                     q = dict(sorted_q)
 
-                    #testing the straight line distance
-                    #distance(x, end)
-
         #keep track of all the visited notes in order of smallest to largest
         visited.append(current)
 
@@ -164,29 +164,78 @@ def searchGraph(visited, end):
     print("Shortest path to " + end + ": " + str(pathLen[end]))
     print("Nodes of shortest path from " + start + " to " + end + ": " + str(shortest))
 
+    return shortest
 
-def distance(node1, node2):
+def bestGuess(node1, node2):
 
-    #splits the string into column and row. Converts the letter to a column number
-    row1 = int(node1[1:])
-    col1 = string.ascii_lowercase.index(node1[0].lower()) + 1
+    guessPath = []
 
-    row2 = int(node2[1:])
-    col2 = string.ascii_lowercase.index(node2[0].lower()) + 1
+    def guess(guessNode):
+        #heuristic approach to picking the next node based on straight line distance to the end node.
+        best = ""
+        lowestDist = float("inf")
 
-    #calculated the difference between row values and column values
-    rowDif = abs(row1 - row2)
-    colDif = abs(col1 - col2)
+        if v:
+            if guessNode != node2:
+                print("Best guess neighbour options: " + str(guessNode) + " : " + str(graph[guessNode]))
+                print("Checking each neighbour to calculate closest distance. \n")
+            else:
+                print(str(guessNode) + " : " + "END NODE \n")
 
-    #pythagorean formulae to calculate the distance
-    dist = sqrt(rowDif**2 + colDif**2)
 
-    print("Straight line distance: " + str(round(dist,1)))
+        for node in graph[guessNode]:
+            for n in node:
 
-    return dist
+                # splits the string into column and row. Converts the letter to a column number
+                row1 = int(n[1:])
+                col1 = string.ascii_lowercase.index(n[0].lower()) + 1
+
+                row2 = int(node2[1:])
+                col2 = string.ascii_lowercase.index(node2[0].lower()) + 1
+
+                # calculated the difference between row values and column values
+                rowDif = abs(row1 - row2)
+                colDif = abs(col1 - col2)
+
+                if v:
+                    print("row difference = " + str(rowDif) + ", column difference = " + str(colDif))
+
+                #pythagorean formulae to calculate the distance
+                dist = sqrt(rowDif ** 2 + colDif ** 2)
+
+                if v:
+                    print("Straight line distance from " + str(n) + " to the end node (" + str(node2) +") = " + str(round(dist, 1)))
+
+                if dist < lowestDist:
+                    lowestDist = dist
+                    best = n
+
+        if best:
+            if v:
+                print("best guess: " + best + "\n")
+                print("")
+            guessPath.append(best)
+            guess(best)
+    if v:
+        print("\nCalling best guess algorithm... \n")
+    guess(node1)
+
+    print("Path of best guess: " + str(guessPath))
+
+    return guessPath
 
 #run dijkstra
 visited = dijkstra(graph, createQueue(graph, start))
 
 # search graph with given start and end point
-searchGraph(visited, end)
+shortestPath = searchGraph(visited, end)
+
+# testing the straight line distance
+guessPath = bestGuess(start, end)
+
+#print a small message in verbose mode to suggest a different end point if the guess algorithm was 100% accurate
+if v:
+    if shortestPath == guessPath:
+        print("\nThe guess algorithm was spot on! \nWhy don\'t you try changing the end point to Q7 or B17 to see it fail!")
+    else:
+        print("\nThe guess algorithm didn't get it quite right.")
