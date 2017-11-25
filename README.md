@@ -11,4 +11,4 @@ Heuristic search has now been added using a search based on closest linked node.
 
 Imagine that each square of the maze has a grid reference, starting with A1 at the top left, through to Q20 at the bottom right. Each decision point on the graph is given a reference. These are the reference names used to create the graph. 
 
-#### Text based visuals
+#### Text based visuals added and random maze generation
