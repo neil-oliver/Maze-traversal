@@ -11,7 +11,7 @@ end = "P1" #default P1
 v = False
 
 #option to guess or not
-takeGuess = False
+takeGuess = True
 
 #making maze graph tests
 def findNeighbour(rowCount, cellCount, size):
@@ -181,8 +181,11 @@ def printPath(path, maze):
         else:
             pathdict[x] = str(count)
 
-    pathdict[path[0]] = "GO!"
-    pathdict[path[-1]] = "END"
+    pathdict[start] = "GO!"
+    if path[-1] == end:
+        pathdict[path[-1]] = "END"
+    else:
+        pathdict[path[-1]] = "XXX"
 
     size = int(len(maze)**(1/2))
 
@@ -361,6 +364,9 @@ def searchGraph(visited, end):
         dict_visited = dict(visited)
         shortest = float("inf")
 
+        if trace == end:
+            shortestPath.insert(0, trace)
+
         for node in graph[trace]:
             [(nodeKey, nodeValue)] = node.items()
             if dict_visited[nodeKey] < shortest:
@@ -373,7 +379,8 @@ def searchGraph(visited, end):
             if trace != start:
                 search(trace)
             elif trace == start:
-                print("Finishing on the starting node of " + start)
+                if v:
+                    print("Finishing on the starting node of " + start)
         else:
             print("Error finding shortest path")
 
@@ -400,57 +407,71 @@ def bestGuess(node1, node2):
     def guess(guessNode, lowestDist):
         #heuristic approach to picking the next node based on straight line distance to the end node.
 
-        if v:
-            if guessNode != node2:
-                print("Best guess neighbour options: " + str(guessNode) + " : " + str(graph[guessNode]))
-                if graph[guessNode]:
-                    print("Checking each neighbour to calculate closest distance...")
-                else:
-                    print("The node has no neighbouring nodes and we have failed to find the end node.\n")
-                    print("We finished " + str(round(lowestDist,1)) + " squares away from " + end + ".\n")
-
-
-        best = ""
-        lowestDist = float("inf")
-
-        for node in graph[guessNode]:
-            [(nodeKey, nodeValue)] = node.items()
-
-            # splits the string into column and row. Converts the letter to a column number
-            row1 = int(nodeKey[1:])
-            col1 = string.ascii_lowercase.index(nodeKey[0].lower()) + 1
-
-            row2 = int(node2[1:])
-            col2 = string.ascii_lowercase.index(node2[0].lower()) + 1
-
-            # calculated the difference between row values and column values
-            rowDif = abs(row1 - row2)
-            colDif = abs(col1 - col2)
+        if guessNode == node1 or len(graph[guessNode]) != 1:
 
             if v:
-                print("row difference = " + str(rowDif) + ", column difference = " + str(colDif))
+                if guessNode != node2:
+                    print("Best guess neighbour options: " + str(guessNode) + " : " + str(graph[guessNode]))
+                    if graph[guessNode]:
+                        print("Checking each neighbour to calculate closest distance...")
+                    else:
+                        print("The node has no neighbouring nodes and we have failed to find the end node.\n")
+                        print("We finished " + str(round(lowestDist,1)) + " squares away from " + end + ".\n")
 
-            #pythagorean formulae to calculate the distance
-            dist = sqrt(rowDif ** 2 + colDif ** 2)
+            # append the guessed node to the guessPath list
+            guessPath.append(guessNode)
 
-            if v:
-                print("Straight line distance from " + str(nodeKey) + " to the end node (" + str(node2) +") = " + str(round(dist, 1)))
+            best = ""
+            lowestDist = float("inf")
 
-            if dist < lowestDist:
-                lowestDist = dist
-                best = nodeKey
+            for node in graph[guessNode]:
+                [(nodeKey, nodeValue)] = node.items()
 
-        if best != node2:
-            if v:
-                print("best guess: " + best + "\n")
-                print("")
-            #append the guessed node to the guessPath list
-            guessPath.append(best)
 
-            #reall the guessPath using the new node
-            guess(best,lowestDist)
-        else:
-            print(str(best) + " : " + "END NODE \n")
+                run = False
+
+                if guessNode == node1:
+                    run = True
+
+                if nodeKey not in guessPath:
+                    run = True
+
+                if run == True:
+                    # splits the string into column and row. Converts the letter to a column number
+                    row1 = int(nodeKey[1:])
+                    col1 = string.ascii_lowercase.index(nodeKey[0].lower()) + 1
+
+                    row2 = int(node2[1:])
+                    col2 = string.ascii_lowercase.index(node2[0].lower()) + 1
+
+                    # calculated the difference between row values and column values
+                    rowDif = abs(row1 - row2)
+                    colDif = abs(col1 - col2)
+
+                    if v:
+                        print("row difference = " + str(rowDif) + ", column difference = " + str(colDif))
+
+                    #pythagorean formulae to calculate the distance
+                    dist = sqrt(rowDif ** 2 + colDif ** 2)
+
+                    if v:
+                        print("Straight line distance from " + str(nodeKey) + " to the end node (" + str(node2) +") = " + str(round(dist, 1)))
+
+
+                    if dist < lowestDist:
+                        lowestDist = dist
+                        best = nodeKey
+
+
+            if best != node2:
+                if v:
+                    print("best guess: " + best + "\n")
+                    print("")
+
+                #reall the guessPath using the new node
+                guess(best,lowestDist)
+            else:
+                print(str(best) + " : " + "END NODE \n")
 
     if v:
         print("\nCalling best guess algorithm... \n")
@@ -475,13 +496,14 @@ if start in graph and end in graph:
     if takeGuess == True:
         # testing the straight line distance
         guessPath = bestGuess(start, end)
+        printPath(guessPath, graph)
 
         #print a small message in verbose mode to suggest a different end point if the guess algorithm was 100% accurate
         if v:
             if shortestPath == guessPath:
-                print("\nThe guess algorithm was spot on! \nWhy don\'t you try changing the end point to Q7, B17 or L14 to see it fail!")
+                print("\nThe guess algorithm was spot on! Not bad!")
             else:
-                print("\nThe guess algorithm didn't get it quite right. Why not try changing the end point to P1 to see it guess correctly!")
+                print("\nThe guess algorithm didn't get it quite right. \nWhy don\'t you refresh and see if it improves next time.")
 else:
     print("Please check your start and end nodes at the top of code ensuring they are in the graph and have been given in CAPITALS. Thank you.")
 
